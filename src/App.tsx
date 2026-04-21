@@ -367,7 +367,8 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        {/* TEMPORARY BYPASS: Auth removed for testing */}
+        <Route path="/" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   );
