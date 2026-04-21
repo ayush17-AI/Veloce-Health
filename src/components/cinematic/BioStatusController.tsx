@@ -41,7 +41,7 @@ export default function BioStatusController() {
           event: 'INSERT',
           schema: 'public',
           table: 'health_metrics',
-          filter: 'user_id=eq.72c219a2-a11e-48be-bb96-8b20614fe009'
+          filter: 'user_id=eq.' + USER_UID
         },
         (payload) => {
           setIsLive(true);
