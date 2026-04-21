@@ -1,0 +1,223 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap');
+
+@import "tailwindcss";
+
+/* ══════════════════════════════════════════
+   Veloce Design Tokens (Clinical White)
+   ══════════════════════════════════════════ */
+@theme {
+  --color-blood-red: #B91C1C;
+  --color-sterile-white: #FDFDFD;
+  --color-clinical-gray: #E5E7EB;
+  --color-soft-gray: #F3F4F6;
+  --color-dark-text: #111827;
+  --color-muted-text: #6B7280;
+  --color-glass-white: rgba(255, 255, 255, 0.72);
+  --color-glass-border: rgba(0, 0, 0, 0.06);
+
+  --font-rajdhani: 'Rajdhani', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+}
+
+/* ══════════════════════════════════════════
+   Base Layer
+   ══════════════════════════════════════════ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-sterile-white text-dark-text font-inter overflow-x-hidden;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-rajdhani;
+  }
+}
+
+/* ══════════════════════════════════════════
+   Component Classes
+   ══════════════════════════════════════════ */
+@layer components {
+  /* Light glassmorphism for clinical aesthetic */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 1.25rem;
+    box-shadow:
+      0 4px 32px rgba(0, 0, 0, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  /* Dark glassmorphism for hospital phase */
+  .glass-panel-dark {
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.25rem;
+    box-shadow:
+      0 4px 32px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-panel-hover {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-panel-hover:hover {
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow:
+      0 8px 40px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 1),
+      0 0 60px rgba(185, 28, 28, 0.03);
+  }
+
+  .glass-panel-dark.glass-panel-hover:hover {
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow:
+      0 8px 40px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 0 60px rgba(185, 28, 28, 0.08);
+  }
+
+  /* 3D perspective container */
+  .perspective-container {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+  }
+}
+
+/* ══════════════════════════════════════════
+   VELOCE Logo — Letter Styling
+   ══════════════════════════════════════════ */
+.veloce-outline {
+  color: #FDFDFD;
+  -webkit-text-stroke: 2px #374151;
+  paint-order: stroke fill;
+}
+
+.veloce-outline-sm {
+  color: #FDFDFD;
+  -webkit-text-stroke: 1px #374151;
+  paint-order: stroke fill;
+}
+
+/* Individual letter reveal */
+.veloce-letter {
+  display: inline-block;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  will-change: transform, opacity;
+}
+
+.veloce-letter-red {
+  color: #B91C1C;
+}
+
+.veloce-letter-white {
+  color: #FDFDFD;
+  -webkit-text-stroke: 2.5px #374151;
+  paint-order: stroke fill;
+}
+
+/* ══════════════════════════════════════════
+   Keyframe Animations
+   ══════════════════════════════════════════ */
+
+/* Letter glow pulse on entry */
+@keyframes letterGlow {
+  0% {
+    text-shadow: 0 0 0px transparent;
+    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+  }
+  40% {
+    text-shadow: 0 0 40px rgba(185, 28, 28, 0.6), 0 0 80px rgba(185, 28, 28, 0.3);
+    transform: translateY(0px) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    text-shadow: 0 0 0px transparent;
+    transform: translateY(0px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes letterGlowWhite {
+  0% {
+    filter: drop-shadow(0 0 0px transparent);
+    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+  }
+  40% {
+    filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5));
+    transform: translateY(0px) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    filter: drop-shadow(0 0 0px transparent);
+    transform: translateY(0px) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ECG scan glow */
+@keyframes ecgScanGlow {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.4; }
+}
+
+/* Floating pulse for equipment */
+@keyframes subtleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Hospital background crossfade */
+@keyframes hospitalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ══════════════════════════════════════════
+   Discovery Section 3D Utilities
+   ══════════════════════════════════════════ */
+.discovery-section {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+/* ══════════════════════════════════════════
+   Custom Scrollbar
+   ══════════════════════════════════════════ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* ══════════════════════════════════════════
+   Selection
+   ══════════════════════════════════════════ */
+::selection {
+  background: rgba(185, 28, 28, 0.15);
+  color: #111827;
+}
