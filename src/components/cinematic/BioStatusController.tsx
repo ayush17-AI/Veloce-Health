@@ -30,18 +30,18 @@ export default function BioStatusController() {
     fetchLatest();
 
     // TEMPORARY OVERRIDE: Listen only to specific ESP32 data
-    const USER_UID = "PASTE_YOUR_UID_HERE";
+    const USER_UID = "72c219a2-a11e-48be-bb96-8b20614fe009";
 
     // Subscribe to realtime changes
     const channel = supabase
       .channel('health_metrics_changes')
       .on(
         'postgres_changes',
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
+        {
+          event: 'INSERT',
+          schema: 'public',
           table: 'health_metrics',
-          filter: `user_id=eq.${USER_UID}`
+          filter: 'user_id=eq.72c219a2-a11e-48be-bb96-8b20614fe009'
         },
         (payload) => {
           setIsLive(true);
