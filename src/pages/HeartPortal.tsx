@@ -15,13 +15,16 @@ export default function HeartPortal({ bpm, onBack }: HeartPortalProps) {
 
   useEffect(() => {
     const fetchHistory = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('health_metrics')
         .select('*')
-        .eq('user_id', ESP32_USER_ID)
         .order('created_at', { ascending: false })
         .limit(5);
       
+      if (error) {
+        console.error('[Veloce] HeartPortal fetch error:', error.message, error.details);
+      }
+
       if (data) {
         setHistory(data.map((item: any) => {
           const dateObj = new Date(item.created_at);
