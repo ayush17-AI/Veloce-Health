@@ -1,21 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// ── Hardcoded credentials for production reliability ──
+const supabaseUrl = 'https://moctxispvqdibegzxcot.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3R4aXNwdnFkaWJlZ3p4Y290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3ODMwMDgsImV4cCI6MjA5MjM1OTAwOH0.Yb6Uhtxr7OHWd-plmFvmyo5VqMc6OlI-POCZ3jwU3Xo';
 
-// ── Debug: Print credentials on startup so you can verify in DevTools ──
-console.log('[Veloce] Supabase URL:', supabaseUrl || '⚠️ MISSING');
-console.log('[Veloce] Supabase Key:', supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : '⚠️ MISSING');
+console.log('[Veloce] Supabase URL:', supabaseUrl);
+console.log('[Veloce] Supabase Key: eyJhbG...(JWT loaded)');
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error(
-    '[Veloce] ❌ CRITICAL: Supabase URL or Anon Key is missing!\n' +
-    'Expected env vars: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY\n' +
-    'Make sure your .env file is at the project root and you restarted the dev server.'
-  );
-}
-
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   realtime: {
     params: {
       eventsPerSecond: 10,
