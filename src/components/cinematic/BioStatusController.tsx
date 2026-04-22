@@ -1,62 +1,128 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import SeeSawPhysicsSystem from './SeeSawPhysicsSystem';
 import HeartPortal from '../../pages/HeartPortal';
 import TempPortal from '../../pages/TempPortal';
-import { Heart, Activity, Radio } from 'lucide-react';
-import { supabase } from '../../supabaseClient';
+import { Heart, Activity, Radio, Wifi, WifiOff } from 'lucide-react';
+import { supabase, ESP32_USER_ID } from '../../supabaseClient';
 
 export default function BioStatusController() {
   const [bpm, setBpm] = useState(72);
   const [temp, setTemp] = useState(98.6);
   const [activePortal, setActivePortal] = useState<'heart' | 'temp' | null>(null);
   const [isLive, setIsLive] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
-  useEffect(() => {
-    // Fetch initial data
-    const fetchLatest = async () => {
+  // ── Shared fetch function (used by both initial load & polling fallback) ──
+  const fetchLatest = useCallback(async () => {
+    try {
       const { data, error } = await supabase
         .from('health_metrics')
         .select('*')
+        .eq('user_id', ESP32_USER_ID)
         .order('created_at', { ascending: false })
         .limit(1);
-      
-      if (!error && data && data.length > 0) {
-        setBpm(data[0].bpm);
-        setTemp(data[0].temperature);
+
+      if (error) {
+        console.error('[Veloce] Fetch error:', error.message);
+        return;
       }
-    };
-    
+
+      if (data && data.length > 0) {
+        const row = data[0];
+        if (row.bpm != null) setBpm(row.bpm);
+        if (row.temperature != null) setTemp(row.temperature);
+        console.log('[Veloce] Fetched latest:', { bpm: row.bpm, temp: row.temperature });
+      }
+    } catch (err) {
+      console.error('[Veloce] Fetch exception:', err);
+    }
+  }, []);
+
+  // ── Start polling fallback (5s interval) ──
+  const startPolling = useCallback(() => {
+    if (pollingRef.current) return; // already polling
+    console.log('[Veloce] Starting polling fallback (5s interval)');
+    pollingRef.current = setInterval(fetchLatest, 5000);
+  }, [fetchLatest]);
+
+  // ── Stop polling ──
+  const stopPolling = useCallback(() => {
+    if (pollingRef.current) {
+      console.log('[Veloce] Stopping polling fallback');
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    // Fetch initial data immediately
     fetchLatest();
 
-    // TEMPORARY OVERRIDE: Listen only to specific ESP32 data
-    const USER_UID = "72c219a2-a11e-48be-bb96-8b20614fe009";
-
-    // Subscribe to realtime changes
+    // ── Subscribe to realtime INSERT events ──
     const channel = supabase
-      .channel('health_metrics_changes')
+      .channel('health_metrics_realtime', {
+        config: { broadcast: { self: true } },
+      })
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'health_metrics',
-          filter: 'user_id=eq.' + USER_UID
+          filter: `user_id=eq.${ESP32_USER_ID}`,
         },
         (payload) => {
+          console.log('[Veloce] Realtime INSERT received:', payload.new);
+          const row = payload.new as { bpm?: number; temperature?: number };
+
+          if (row.bpm != null) setBpm(row.bpm);
+          if (row.temperature != null) setTemp(row.temperature);
+
           setIsLive(true);
-          if (payload.new.bpm) setBpm(payload.new.bpm);
-          if (payload.new.temperature) setTemp(payload.new.temperature);
-          
-          // Reset live pulse indicator
           setTimeout(() => setIsLive(false), 2000);
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log('[Veloce] Channel status:', status, err || '');
+
+        if (status === 'SUBSCRIBED') {
+          setConnectionStatus('connected');
+          console.log('[Veloce] ✅ Realtime connected — listening for INSERT events');
+          stopPolling(); // Websocket is healthy, no need to poll
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          setConnectionStatus('disconnected');
+          console.warn('[Veloce] ⚠️ Realtime error — activating polling fallback');
+          startPolling();
+        } else if (status === 'CLOSED') {
+          setConnectionStatus('disconnected');
+          console.warn('[Veloce] Realtime channel closed — activating polling fallback');
+          startPolling();
+        }
+      });
+
+    channelRef.current = channel;
+
+    // ── Safety net: if still not connected after 8s, start polling ──
+    const safetyTimeout = setTimeout(() => {
+      if (connectionStatus === 'connecting') {
+        console.warn('[Veloce] Connection timeout — activating polling fallback');
+        setConnectionStatus('disconnected');
+        startPolling();
+      }
+    }, 8000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearTimeout(safetyTimeout);
+      stopPolling();
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const heartStatus = bpm < 55 || bpm > 110 ? 'poor' : bpm < 60 || bpm > 100 ? 'average' : 'good';
@@ -65,6 +131,9 @@ export default function BioStatusController() {
   const handleHeartClick = () => setActivePortal('heart');
   const handleTempClick = () => setActivePortal('temp');
   const handleBack = () => setActivePortal(null);
+
+  const ConnectionIcon = connectionStatus === 'connected' ? Wifi : WifiOff;
+  const connectionColor = connectionStatus === 'connected' ? 'text-green-400' : connectionStatus === 'connecting' ? 'text-yellow-400' : 'text-red-400';
 
   return (
     <div className="relative w-full overflow-visible">
@@ -88,6 +157,13 @@ export default function BioStatusController() {
               <span className="text-[9px] font-inter uppercase tracking-wider text-red-500 font-bold">
                 {isLive ? 'Receiving' : 'Live'}
               </span>
+            </div>
+            {/* Connection status indicator */}
+            <div className={`flex items-center gap-1 ${connectionColor}`} title={`Status: ${connectionStatus}`}>
+              <ConnectionIcon size={10} />
+              {connectionStatus === 'disconnected' && (
+                <span className="text-[8px] font-inter uppercase tracking-wider text-red-400 font-bold">Poll</span>
+              )}
             </div>
           </div>
           

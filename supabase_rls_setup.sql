@@ -43,3 +43,26 @@ CREATE POLICY "Users can delete own telemetry"
 ON public.health_metrics 
 FOR DELETE 
 USING (auth.uid() = user_id);
+
+-- ==============================================================================
+-- 5. PRESENTATION MODE: Allow anon/public read access to ESP32 data
+-- This is REQUIRED when the dashboard runs without authentication (e.g. demo).
+-- Without this, the anon key cannot read any rows because auth.uid() is NULL.
+-- ==============================================================================
+
+-- Allow anyone to read health_metrics (for unauthenticated dashboard mode)
+CREATE POLICY "Public read access for presentation"
+ON public.health_metrics
+FOR SELECT
+USING (true);
+
+-- Allow the ESP32 service role to insert without auth
+-- (Only needed if ESP32 sends via service_role key or REST API directly)
+CREATE POLICY "ESP32 service insert"
+ON public.health_metrics
+FOR INSERT
+WITH CHECK (true);
+
+-- NOTE: After your presentation, you should DROP these permissive policies:
+-- DROP POLICY "Public read access for presentation" ON public.health_metrics;
+-- DROP POLICY "ESP32 service insert" ON public.health_metrics;

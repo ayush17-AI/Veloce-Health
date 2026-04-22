@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle2, AlertCircle, ShieldAlert } from 'lucide-react';
 import { analyzeTemp } from '../data/medicalData';
 import { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase, ESP32_USER_ID } from '../supabaseClient';
 
 interface TempPortalProps {
   temperature: number;
@@ -18,6 +18,7 @@ export default function TempPortal({ temperature, onBack }: TempPortalProps) {
       const { data } = await supabase
         .from('health_metrics')
         .select('*')
+        .eq('user_id', ESP32_USER_ID)
         .order('created_at', { ascending: false })
         .limit(5);
       
