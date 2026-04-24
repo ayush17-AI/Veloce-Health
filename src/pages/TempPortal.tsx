@@ -9,9 +9,6 @@ interface TempPortalProps {
   onBack: () => void;
 }
 
-// Convert Fahrenheit to Celsius for display
-const fToC = (f: number) => (f - 32) * 5 / 9;
-
 export default function TempPortal({ temperature, onBack }: TempPortalProps) {
   const analysis = analyzeTemp(temperature);
   const [history, setHistory] = useState<any[]>([]);
@@ -34,7 +31,7 @@ export default function TempPortal({ temperature, onBack }: TempPortalProps) {
           return {
             date: dateObj.toISOString().split('T')[0],
             time: dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            value: `${fToC(item.temperature).toFixed(1)} °C`,
+            value: `${item.temperature.toFixed(1)} °C`,
             status: analyzeTemp(item.temperature).status,
           };
         }));
@@ -89,7 +86,7 @@ export default function TempPortal({ temperature, onBack }: TempPortalProps) {
         <div className="text-center mb-16">
           <p className="text-xs font-inter font-bold text-sky-300/60 uppercase tracking-[0.25em] mb-2">Thermal Analysis Portal</p>
           <h1 className="text-8xl md:text-[120px] font-rajdhani font-bold tracking-tighter leading-none" style={{ color }}>
-            {fToC(temperature).toFixed(1)} <span className="text-4xl text-sky-300/60 tracking-widest font-semibold uppercase relative -top-8 -ml-2">°C</span>
+            {temperature.toFixed(1)} <span className="text-4xl text-sky-300/60 tracking-widest font-semibold uppercase relative -top-8 -ml-2">°C</span>
           </h1>
           <div className="flex items-center justify-center gap-3 mt-6">
             <Icon size={24} style={{ color }} />

@@ -6,13 +6,13 @@ import TempPortal from '../../pages/TempPortal';
 import { Heart, Activity, Radio, Wifi, WifiOff, Clock } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 
-// Convert Fahrenheit to Celsius for display
-const fToC = (f: number) => (f - 32) * 5 / 9;
+// Convert Celsius to Fahrenheit for the see-saw physics (expects °F range 95–105)
+const cToF = (c: number) => c * 9 / 5 + 32;
 
 export default function BioStatusController() {
   const [bpm, setBpm] = useState(72);
-  // Default 98.6°F = 37.0°C — displayed as "37°C" placeholder until first live Supabase data arrives
-  const [temp, setTemp] = useState(98.6);
+  // Temperature stored in °C — default 37°C shown until first live Supabase data arrives
+  const [temp, setTemp] = useState(37);
   const [activePortal, setActivePortal] = useState<'heart' | 'temp' | null>(null);
   const [isLive, setIsLive] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -152,8 +152,7 @@ export default function BioStatusController() {
     : '—';
 
   const heartStatus = bpm < 55 || bpm > 110 ? 'poor' : bpm < 60 || bpm > 100 ? 'average' : 'good';
-  const tempC = fToC(temp);
-  const tempStatus = tempC > 38.9 || tempC < 35.6 ? 'danger' : tempC > 37.5 || tempC < 36.1 ? 'warning' : 'normal';
+  const tempStatus = temp > 38.9 || temp < 35.6 ? 'danger' : temp > 37.5 || temp < 36.1 ? 'warning' : 'normal';
 
   const handleHeartClick = () => setActivePortal('heart');
   const handleTempClick = () => setActivePortal('temp');
@@ -170,7 +169,7 @@ export default function BioStatusController() {
     <div className="relative w-full overflow-visible">
       <SeeSawPhysicsSystem 
         bpm={bpm} 
-        temperature={temp} 
+        temperature={cToF(temp)} 
         heartStatus={heartStatus} 
         tempStatus={tempStatus} 
         onHeartClick={handleHeartClick}
@@ -220,10 +219,10 @@ export default function BioStatusController() {
           <div className="flex flex-col gap-2 w-48">
             <div className="flex justify-between items-center text-sm font-rajdhani text-white">
               <span className="flex items-center gap-2"><Activity size={14} color="#22C55E" /> Temp (°C)</span>
-              <span className="font-bold text-lg">{tempC.toFixed(1)}</span>
+              <span className="font-bold text-lg">{temp.toFixed(1)}</span>
             </div>
             <div className="w-full h-1 bg-white/10 rounded overflow-hidden">
-               <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${Math.min(100, Math.max(0, ((tempC - 34.4) / 6.7) * 100))}%` }} />
+               <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${Math.min(100, Math.max(0, ((temp - 34.4) / 6.7) * 100))}%` }} />
             </div>
           </div>
         </div>

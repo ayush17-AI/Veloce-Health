@@ -44,21 +44,21 @@ export const analyzeBPM = (bpm: number) => {
 };
 
 export const analyzeTemp = (temp: number) => {
-  if (temp > 100) { // 100 F ~ 37.8 C
+  if (temp > 37.8) { // ~100°F
     return {
       status: 'danger' as HealthStatus,
       condition: 'Fever / Hyperthermia',
       symptoms: ['Chills', 'Sweating', 'Headache', 'Muscle aches'],
       diet: ['Fluids (electrolytes)', 'Light soups', 'Vitamin C'],
     };
-  } else if (temp < 97.5) {
+  } else if (temp < 36.4) { // ~97.5°F
     return {
       status: 'danger' as HealthStatus,
       condition: 'Hypothermia Risk',
       symptoms: ['Shivering', 'Fatigue', 'Confusion'],
       diet: ['Warm fluids', 'High-energy foods'],
     };
-  } else if (temp > 99.0 && temp <= 100) {
+  } else if (temp > 37.2 && temp <= 37.8) { // ~99–100°F
     return {
       status: 'warning' as HealthStatus,
       condition: 'Elevated Core Temperature',
