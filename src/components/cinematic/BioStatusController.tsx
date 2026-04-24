@@ -11,6 +11,7 @@ const fToC = (f: number) => (f - 32) * 5 / 9;
 
 export default function BioStatusController() {
   const [bpm, setBpm] = useState(72);
+  // Default 98.6°F = 37.0°C — displayed as "37°C" placeholder until first live Supabase data arrives
   const [temp, setTemp] = useState(98.6);
   const [activePortal, setActivePortal] = useState<'heart' | 'temp' | null>(null);
   const [isLive, setIsLive] = useState(false);
