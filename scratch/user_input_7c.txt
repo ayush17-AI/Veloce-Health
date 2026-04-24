@@ -1,0 +1,14 @@
+﻿<USER_REQUEST>
+Subject: Debugging Real-time Supabase Sync for Health Metrics
+
+Current Situation: > My hardware (ESP32) is successfully sending data to the Supabase table health_metrics (Status 201). I can see the new rows in the Supabase Table Editor. However, the website is not updating the UI in real-time when new data arrives.
+
+Task: > Please audit the frontend code and fix the following:
+
+Subscription Check: Ensure the supabase.channel() logic is correctly implemented to listen for INSERT events on the health_metrics table.
+
+State Management: Verify that the payload from the real-time event is correctly updating the React/Next.js state (e.g., the BPM and Temperature variables).
+
+User_ID Filtering: My hardware sends data with user_id: '72c219a2-a11e-48be-bb96-8b20614fe009'. Ensure the website is either fetching this specific ID or is set to display the latest entry from the table without stuck filters.
+
+<truncated 1287 bytes>

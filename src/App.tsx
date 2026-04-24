@@ -327,18 +327,14 @@ function Dashboard() {
                 <p className="text-[10px] font-inter text-white/30 uppercase tracking-wider">
                   Heartbeat
                 </p>
-                <p className="text-xs font-rajdhani font-bold text-white/60">
-                  MAX30102
-                </p>
+
               </div>
               <div className="text-center">
                 <div className="w-8 h-[2px] bg-[#22C55E] mx-auto mb-2" />
                 <p className="text-[10px] font-inter text-white/30 uppercase tracking-wider">
                   Temperature
                 </p>
-                <p className="text-xs font-rajdhani font-bold text-white/60">
-                  MLX90614
-                </p>
+
               </div>
             </motion.div>
           </section>

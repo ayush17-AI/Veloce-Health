@@ -28,8 +28,8 @@ export default function VitalCardTemp() {
               Body Temp
             </h3>
             <div className="flex items-end gap-2">
-              <span className="text-5xl font-rajdhani font-bold text-white">98.6</span>
-              <span className="text-sm font-inter text-[#E0F2FE] pb-1.5 font-medium">°F</span>
+              <span className="text-5xl font-rajdhani font-bold text-white">37.0</span>
+              <span className="text-sm font-inter text-[#E0F2FE] pb-1.5 font-medium">°C</span>
             </div>
           </div>
           <div className="p-3 bg-[#E0F2FE]/10 rounded-xl text-[#E0F2FE] group-hover:bg-[#E0F2FE] group-hover:text-[#0A0A0A] transition-all duration-300 shadow-sm border border-[#E0F2FE]/20">
